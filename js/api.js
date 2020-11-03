@@ -175,7 +175,6 @@ function getScoreById() {
               <div class="card"> 
                 <div>
                 <span class="card-title truncate"><b>Pemain: ${data.name}</b></span>
-                <span class="card-title truncate">Tanggal Lahir: ${data.dateOfBirth}</span>
                 <span class="card-title truncate">Tempat Kelahiran: ${data.countryOfBirth}</span>
                 <span class="card-title truncate">Warga Negara: ${data.nationality}</span>
                 <span class="card-title truncate">Posisi: ${data.position}</span>
@@ -199,7 +198,6 @@ function getScoreById() {
           <div class="card"> 
             <div>
             <span class="card-title truncate"><b>Pemain: ${data.name}</b></span>
-            <span class="card-title truncate">Tanggal Lahir: ${data.dateOfBirth}</span>
             <span class="card-title truncate">Tempat Kelahiran: ${data.countryOfBirth}</span>
             <span class="card-title truncate">Warga Negara: ${data.nationality}</span>
             <span class="card-title truncate">Posisi: ${data.position}</span>
@@ -218,17 +216,95 @@ function getSavedPlayers() {
     console.log(players);
     // Menyusun komponen card artikel secara dinamis
     var savedHTML = "";
+    savedHTML += `<h5 class="orange-text">Daftar Pemain Favorit</h5>
+    <hr>
+    <br>
+    <b>Tambah Data</b>
+    
+    <form>
+      <label for="playerId">Id Pemain: </label><input id="playerId" type="text">
+      <label for="playerName">Nama Pemain:  </label > <input id="playerName" type="text">
+      <label for="playerBirth">Tempat Kelahiran: </label><input id="playerBirth" type="text">
+      <label for="playerNationality">Warga Negara: </label><input id="playerNationality" type="text">
+      <label for="playerPosition">Posisi: </label><input id="playerPosition" type="text">
+      <button onclick="insertPlayer()">Submit</button>
+      <br>
+      <h5 class="orange-text">Daftar Pemain</h5>
+    </form>
+    <div class="card"> 
+        <div id="playersRow">
+        <span class="card-title truncate"><b>Pemain:</b></span>
+        <span class="card-title truncate">Tempat Kelahiran:</span>
+        <span class="card-title truncate">Warga Negara:</span>
+        <span class="card-title truncate">Posisi:</span>
+        <button id="" class="removeButton">Hapus</button>
+        </div>
+      </div>
+    `;
+    //fungsi tambah database
+    document.addEventListener("DOMContentLoaded", function () {
+    });
+    const playersRow = document.querySelector("#playersRow");
+    const inputPlayerId = document.querySelector("#playerId");
+    const inputPlayerName = document.querySelector("#playerName");
+    const inputPlayerBirth = document.querySelector("#playerBirth");
+    const inputPlayerNationality = document.querySelector("#playerNationality");
+    const inputPlayerPosition = document.querySelector("#playerPosition");
+
+
+    function insertPlayer() {
+        const player = {
+            playerId: inputPlayerId.value,
+            playerName: inputPlayerName.value,
+            playerBirth: inputPlayerBirth.value,
+            playerNationality: inputPlayerNationality.value,
+            playerPosition: inputPlayerPosition.value
+        };
+
+        dbInsertPlayer(player).then(() => {
+            showAllPlayer()
+        })
+    }
+
+    function showAllPlayer() {
+       dbGetAllPlayer().then(players => {
+           let listPlayersInText = "";
+           players.forEach(player => {
+               listPlayersInText += `
+               <tr>
+                 <td>${player.playerId}</td>
+                 <td>${player.playerName}</td>
+                 <td>${player.PlayerBirth}</td>
+                 <td>${player.PlayerNationality}</td>
+                 <td>${player.PlayerPosition}</td>
+                 <td><button id="${player.playerId}" class="removeButton">Remove</button></td>
+               </tr>
+               `;
+           });
+           playersRow.innerHTML = listPlayersInText;
+
+           let removeButtons = document.querySelectorAll(".removeButton");
+           for(let button of removeButtons) {
+               button.addEventListener("click", function (event) {
+                   let playerId = event.target.id;
+                   dbDeletePlayer(playerId).then(() => {
+                       showAllPlayer()
+                   })
+               })
+           }
+       })
+    }
+    showAllPlayer()
+
     players.forEach(function(player) {
       savedHTML += `
       <div class="card"> 
         <div>
-        
         <span class="card-title truncate"><b>Pemain: ${player.name}</b></span>
-        <span class="card-title truncate">Tanggal Lahir: ${player.dateOfBirth}</span>
         <span class="card-title truncate">Tempat Kelahiran: ${player.countryOfBirth}</span>
         <span class="card-title truncate">Warga Negara: ${player.nationality}</span>
         <span class="card-title truncate">Posisi: ${player.position}</span>
-        <button id="${player.id}" class="removeButton">Remove</button>
+        <button id="${player.id}" class="removeButton">Hapus</button>
         </div>
       </div>
       `;
@@ -240,7 +316,7 @@ function getSavedPlayers() {
                button.addEventListener("click", function (event) {
                    let playerId = event.target.id;
                    dbDeletePlayer(playerId).then(() => {
-                       showAllPlayer()
+                       getSavedPlayers()
                    })
                })
            }
